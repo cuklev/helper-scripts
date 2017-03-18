@@ -1,2 +1,3 @@
-# helper-scripts
-Collection of scripts
+# Helper scripts
+
+Collection of scripts that I wrote and often use.
