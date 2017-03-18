@@ -1,0 +1,11 @@
+#!/bin/bash
+
+VMLINUZ_UNSIGNED="$1"
+VMLINUZ_OUTPUT="$2"
+
+SECUREBOOTKEY="/usr/src/efikeys/db.key"
+SECUREBOOTCERT="/usr/src/efikeys/db.crt"
+
+rm -f "${VMLINUZ_OUTPUT}"
+
+sbsign --key "${SECUREBOOTKEY}" --cert "${SECUREBOOTCERT}" --output "${VMLINUZ_OUTPUT}" "${VMLINUZ_UNSIGNED}"
