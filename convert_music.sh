@@ -4,6 +4,20 @@ operation="$1"
 
 DB_FILE="music_folders.list"
 
+trap wait EXIT
+
+run_parallel() {
+	local MAX_COUNT=8
+
+	while true; do
+		local job_count=$(jobs -p | wc -l)
+		[[ $job_count < $MAX_COUNT ]] && break
+		sleep 1
+	done
+
+	"$@" &
+}
+
 add() {
 	local db_file="$DB_FILE"
 	[[ "$1" != "" ]] && db_file="$1"
@@ -31,7 +45,7 @@ convert_file() {
 	echo "Converting ${in_file}"
 
 	mkdir -p "$out_dir"
-	ffmpeg -loglevel 0 \
+	run_parallel ffmpeg -loglevel 0 \
 		-n -i "$in_file" -b:a 92k -bufsize 92k "${out_dir}/$out_file" \
 		&> /dev/null
 }
