@@ -1,6 +1,6 @@
 #!/bin/bash
 
-operation=$1
+operation="$1"
 
 DB_FILE="music_folders.list"
 
@@ -22,16 +22,18 @@ add() {
 
 convert_file() {
 	in_file="$1"
+
 	out_dir="$(basename "$(dirname "$in_file")")"
-	out_file="${out_dir}/$(basename "$in_file")"
+
+	out_file="$(basename "$in_file")"
 	out_file="${out_file%.*}.opus"
 
 	echo "Converting ${in_file}"
 
 	mkdir -p "$out_dir"
 	ffmpeg -loglevel 0 \
-		-n -i "$in_file" -b:a 92k -bufsize 92k "$out_file" \
-		2> /dev/null
+		-n -i "$in_file" -b:a 92k -bufsize 92k "${out_dir}/$out_file" \
+		&> /dev/null
 }
 
 convert() {
