@@ -46,7 +46,7 @@ convert_file() {
 
 	mkdir -p "$out_dir"
 	run_parallel ffmpeg -loglevel 0 \
-		-n -i "$in_file" -b:a 92k -bufsize 92k "${out_dir}/$out_file" \
+		-n -i "$in_file" -b:a 96k -bufsize 96k "${out_dir}/$out_file" \
 		&> /dev/null
 }
 
