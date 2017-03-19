@@ -24,12 +24,18 @@ add() {
 
 	{
 		cat "$db_file"
-		zenity \
+		while read dir; do
+			find "$dir" \
+				-name \*.mp3 -or \
+				-name \*.flac -or \
+				-name \*.ogg -or \
+				-name \*.opus
+		done < <(zenity \
 			--file-selection \
 			--multiple \
 			--directory \
 			--separator '
-'
+')
 	} \
 	| sort -uo "$db_file"
 }
@@ -45,25 +51,33 @@ convert_file() {
 	echo "Converting ${in_file}"
 
 	mkdir -p "$out_dir"
-	run_parallel ffmpeg -loglevel 0 \
+	ffmpeg -loglevel 0 \
 		-n -i "$in_file" -b:a 96k -bufsize 96k "${out_dir}/${out_file}" \
 		&> /dev/null
+
+	echo Done >&5
+}
+
+display_progress() {
+	local total=$1
+	local progress=0
+
+	while read; do
+		let progress+=1
+		echo $((100 * progress / total))
+	done | zenity --progress --text='Converting...' --auto-close --no-cancel
 }
 
 convert() {
 	local db_file="$DB_FILE"
 	[[ "$1" != "" ]] && db_file="$1"
 
-	while read dir; do
-		find "$dir" \
-			-name \*.mp3 -or \
-			-name \*.flac -or \
-			-name \*.ogg -or \
-			-name \*.opus \
-			| while read file; do
-				convert_file "$file"
-			done
-	done < "$db_file"
+	file_count=$(wc -l "$db_file")
+
+	while read file; do
+		run_parallel convert_file "$file"
+	done < "$db_file" 5>&1 >&2 \
+		| display_progress $file_count
 }
 
 case $operation in
